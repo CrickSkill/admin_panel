@@ -1,0 +1,77 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<style>
+    .table-container { max-width: 100%; overflow-x: auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 10px; margin: 0 auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 800px; }
+    th, td { padding: 12px; text-align: center; border: 1px solid #dee2e6; font-size: 12px; }
+    th { background-color: #e40006; color: white; }
+    tr:hover { background-color: #f1f3f5; }
+    .header { justify-content: center; }
+    button { padding: 12px; font-size: 14px; width: 100%; border-radius: 8px; border: none; }
+    .more { background: #add8e6; font-weight: bolder; color: #0e87d8; }
+    .less { background: #e6adad; font-weight: bolder; color: #d80e0e; }
+    .button-group { align-items: center; justify-content: space-evenly; display: flex; gap: 15px; }
+</style>
+<div class="header">
+    <h2>Manage Coins</h2>
+</div>
+<div id="loader">
+    <div class="loader"></div>
+</div>
+<div class="table-container">
+    <table id="payments-table">
+        <tr>
+            <th>Username</th>
+            <th>Transaction ID</th>
+            <th>Amount</th>
+            <th>Payment Method</th>
+            <th>UTR</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Actions</th>
+        </tr>
+    </table>
+</div>
+<script>
+async function fetchPaymentsData() {
+    document.getElementById("loader").style.display = "flex";
+    const response = await fetch("https://script.google.com/macros/s/AKfycbz9wiDiCyiXdvyBrdtq7y6JdJSxZSbhrgy2sSWu99x3GwIGaVkm5svH23uU0CCwt8ejMw/exec");
+    const data = await response.json();
+    const table = document.getElementById("payments-table");
+    document.getElementById("loader").style.display = "none";
+    data.forEach(row => {
+        const dateTime = new Date(row.timestamp);
+        const date = dateTime.toLocaleDateString();
+        const time = dateTime.toLocaleTimeString();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${row.username}</td>
+            <td>${row.transactionId}</td>
+            <td>${row.amount}</td>
+            <td>${row.paymentMethod}</td>
+            <td>${row.utr}</td>
+            <td>${date}</td>
+            <td>${time}</td>
+            <td class="button-group">
+                <button onclick="updateStatus(${row.index}, 'Accepted', '${row.username}', ${row.amount})" class="more">Accept</button>
+                <button onclick="updateStatus(${row.index}, 'Rejected')" class="less">Reject</button>
+            </td>
+        `;
+        table.appendChild(tr);
+    });
+}
+
+async function updateStatus(index, status, username = '', amount = 0) {
+    document.getElementById("loader").style.display = "flex";
+    await fetch("https://script.google.com/macros/s/AKfycbz9wiDiCyiXdvyBrdtq7y6JdJSxZSbhrgy2sSWu99x3GwIGaVkm5svH23uU0CCwt8ejMw/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `index=${index}&status=${status}&username=${username}&amount=${amount}`
+    });
+    location.reload();
+}
+
+fetchPaymentsData();
+</script>

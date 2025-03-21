@@ -1,0 +1,60 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<style>
+  .header { justify-content: center; }
+  #loader { display: none; }
+</style>
+
+<div class="header">
+  <h2>Update Result</h2>
+</div>
+<div class="form">
+  <select id="gameId" class="int"></select>
+  <select id="selection" class="int">
+    <option value="More">More</option>
+    <option value="Less">Less</option>
+  </select>
+  <button onclick="submitPrediction()" class="btn">Submit</button>
+  <div id="loader"><div class="loader"></div></div>
+</div>
+
+<script>
+  function fetchGameIds() {
+    fetch("https://script.google.com/macros/s/AKfycbxWFQ0l4taHT08PpsgCVcHT7uUnIIzc83dHppOi4tt4T7bulUbTsxCpmd-k7kP3Mh7Zlg/exec")
+      .then(response => response.json())
+      .then(data => {
+        const gameIdSelect = document.getElementById("gameId");
+        data.forEach(id => {
+          const option = document.createElement("option");
+          option.value = id;
+          option.textContent = id;
+          gameIdSelect.appendChild(option);
+        });
+      });
+  }
+
+  function submitPrediction() {
+    const gameId = document.getElementById("gameId").value;
+    const selection = document.getElementById("selection").value;
+    const loader = document.getElementById("loader");
+    loader.style.display = "flex";
+    fetch("https://script.google.com/macros/s/AKfycbxWFQ0l4taHT08PpsgCVcHT7uUnIIzc83dHppOi4tt4T7bulUbTsxCpmd-k7kP3Mh7Zlg/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `gameId=${gameId}&selection=${selection}`
+    })
+      .then(response => response.text())
+      .then(data => {
+        loader.style.display = "none";
+        alert(data);
+      })
+      .catch(error => {
+        loader.style.display = "none";
+        alert("Error: " + error.message);
+      });
+  }
+
+  fetchGameIds();
+</script>

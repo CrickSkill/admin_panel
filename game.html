@@ -1,0 +1,85 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<style>
+    .header { justify-content: center; }
+    #loader { display: none; }
+</style>
+<script>
+    async function fetchMatchIds() {
+        try {
+            const response = await fetch("https://script.google.com/macros/s/AKfycbw58CyYN0fEDCdgaZBMW38HG9FH_t18VJDydIRibgq6ATZM7HNHwz6rSwvyXFGk566lmQ/exec");
+            const data = await response.json();
+            const uniqueIds = [...new Set(data.map(item => item.matchId))];
+            const select = document.getElementById("matchId");
+            uniqueIds.forEach(id => {
+                const option = document.createElement("option");
+                option.value = id;
+                option.textContent = id;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error("Error fetching match IDs:", error);
+        }
+    }
+
+    function generateRandomCode(length) {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let result = "";
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    function handleSubmit(event) {
+        event.preventDefault();
+        document.getElementById("loader").style.display = "flex";
+        const title = document.getElementById("title").value;
+        const dateTime = document.getElementById("dateTime").value;
+        const question = document.getElementById("question").value;
+        const amount = document.getElementById("amount").value;
+        const matchId = document.getElementById("matchId").value;
+        const randomCode = generateRandomCode(8);
+
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("dateTime", dateTime);
+        formData.append("question", question);
+        formData.append("amount", amount);
+        formData.append("matchId", matchId);
+        formData.append("randomCode", randomCode);
+
+        fetch("https://script.google.com/macros/s/AKfycbw58CyYN0fEDCdgaZBMW38HG9FH_t18VJDydIRibgq6ATZM7HNHwz6rSwvyXFGk566lmQ/exec", {
+            method: "POST",
+            body: formData
+        }).then(response => {
+            document.getElementById("loader").style.display = "none";
+            if (response.ok) {
+                alert("Data submitted successfully!");
+                document.getElementById("matchForm").reset();
+            } else {
+                alert("Submission failed!");
+            }
+        });
+    }
+
+    window.onload = fetchMatchIds;
+</script>
+<div class="header">
+    <h2>Add Games</h2>
+</div>
+<div id="loader"><div class="loader"></div></div>
+<form id="matchForm" onsubmit="handleSubmit(event)" class="form">
+    <input type="text" id="title" class="int" placeholder="Title" required>
+    <label>Date and Time:</label>
+    <input style="width: 100%;" type="datetime-local" id="dateTime" class="int" required>
+    <input type="text" id="question" placeholder="Question" class="int" required>
+    <input type="number" id="amount" placeholder="Amount" class="int" required>
+    <label>Match ID:</label>
+    <select id="matchId" class="int" required>
+        <option value="">Select Match ID</option>
+    </select>
+    <button type="submit" class="btn">Submit</button>
+</form>

@@ -1,0 +1,103 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<style>
+    .table-container { max-width: 100%; overflow-x: auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 10px; margin: 0 auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 800px; }
+    th, td { padding: 12px; text-align: center; border: 1px solid #dee2e6; font-size: 12px; }
+    th { background-color: #e40006; color: white; }
+    tr:hover { background-color: #f1f3f5; }
+    .header { justify-content: center; }
+    #actual-coins , #total-coins { margin: 0 20px; }
+</style>
+<div class="header">
+    <h2>Users</h2>
+</div>
+<div id="loader" style="display: none;"><div class="loader"></div></div>
+<div id="total-coins"></div>
+<div id="actual-coins"></div>
+<div id="user-table"></div>
+<script>
+    const loader = document.getElementById("loader");
+    loader.style.display = "flex";
+
+    fetch("https://script.google.com/macros/s/AKfycby8O-Cxj8v2YPr-N9dUJNU-c6g3Q4PYm6CFeL0YoEI9unYU7YGH8Bm0Lb_VY35BtIftUw/exec", {
+        method: "POST",
+        body: JSON.stringify({ action: "fetchUserData" })
+    })
+    .then(response => response.json())
+    .then(data => {
+        loader.style.display = "none";
+        if (data.status === "Success") {
+            const totalCoins = data.users.reduce((sum, user) => sum + user.coins, 0);
+            document.getElementById("total-coins").innerHTML = `<h2>Total Coins: ${totalCoins}</h2>`;
+            const actualCoins = (totalCoins * 0.92).toFixed(2);
+            document.getElementById("actual-coins").innerHTML = `<h2>Actual Coins (After 8% Fee): ${actualCoins}</h2>`;
+            let tableHTML = `
+            <div class="table-container">
+                <table border="1" cellpadding="10" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Country Code</th>
+                            <th>Mobile Number</th>
+                            <th>Password</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            </div>
+            `;
+            data.users.forEach(user => {
+                tableHTML += `
+                    <tr>
+                        <td>${user.name}</td>
+                        <td>${user.username}</td>
+                        <td>${user.countryCode}</td>
+                        <td>${user.mobileNumber}</td>
+                        <td>${user.password}</td>
+                        <td>
+                            <select onchange="updateStatus('${user.username}', this.value)" class="int">
+                                <option value="Active" ${user.status === "Active" ? "selected" : ""}>Active</option>
+                                <option value="Banned" ${user.status === "Banned" ? "selected" : ""}>Banned</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            });
+            tableHTML += `</tbody></table>`;
+            document.getElementById("user-table").innerHTML = tableHTML;
+        } else {
+            alert("Failed to fetch user data.");
+        }
+    })
+    .catch(error => {
+        loader.style.display = "none";
+        alert("Error: " + error);
+    });
+
+    function updateStatus(username, status) {
+        const loader = document.getElementById("loader");
+        loader.style.display = "flex";
+
+        fetch("https://script.google.com/macros/s/AKfycby8O-Cxj8v2YPr-N9dUJNU-c6g3Q4PYm6CFeL0YoEI9unYU7YGH8Bm0Lb_VY35BtIftUw/exec", {
+            method: "POST",
+            body: JSON.stringify({ action: "updateStatus", username, status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            loader.style.display = "none";
+            if (data.status === "Success") {
+                alert("Status updated successfully!");
+            } else {
+                alert("Failed to update status.");
+            }
+        })
+        .catch(error => {
+            loader.style.display = "none";
+            alert("Error: " + error);
+        });
+    }
+</script>

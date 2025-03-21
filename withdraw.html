@@ -1,0 +1,67 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<style>
+    .header { justify-content: center; }
+    .popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 1000; }
+    .popup.active { display: block; }
+    .btn { padding: 8px; width: 100%; }
+    .card { display: flex; flex-direction: column; margin: 10px; padding: 10px; background: #eee; border-radius: 12px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+    .card > p { margin: 5px 0; font-size: 16px; }
+    #accept-btn { background: #add8e6; font-weight: bolder; color: #0e87d8; }
+    #reject-btn { background: #e6adad; font-weight: bolder; color: #d80e0e; }
+    .button-group { align-items: center; justify-content: space-evenly; display: flex; gap: 15px; }
+    #qr-code { margin: 0 0 15px 0; }
+</style>
+<div class="header">
+    <h2>Withdrawals</h2>
+</div>
+<div id="withdraw-list"></div>
+<div id="popup" class="popup">
+    <div id="qr-code"></div>
+    <div class="button-group">
+        <button id="accept-btn" class="btn">Accept</button>
+        <button id="reject-btn" class="btn">Reject</button>
+    </div>
+</div>
+<script>
+async function fetchWithdrawData() {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbzCLe92s3dcujl5xA6v9S2vx2TTwEK6eXQxFlL1iH8IrPxz7qxKitQ1geL_TEynUSa0fw/exec");
+    const data = await response.json();
+    const list = document.getElementById("withdraw-list");
+    list.innerHTML = "";
+    data.forEach(row => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+            <p>Username: ${row.username}</p>
+            <p>UPI ID: ${row.upi}</p>
+            <p>Amount: ${row.amount}</p>
+            <button class="btn" onclick="showPopup('${row.upi}', '${row.amount}', ${row.index})">View QR</button>
+        `;
+        list.appendChild(card);
+    });
+}
+
+function showPopup(upi, amount, index) {
+    const qrCode = `upi://pay?pa=${upi}&pn=User&am=${amount}`;
+    document.getElementById("qr-code").innerHTML = `<img src='https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCode)}&size=200x200' alt='QR Code'>`;
+    const popup = document.getElementById("popup");
+    popup.classList.add("active");
+    document.getElementById("accept-btn").onclick = () => updateStatus(index, "Accepted");
+    document.getElementById("reject-btn").onclick = () => updateStatus(index, "Rejected");
+}
+
+async function updateStatus(index, status) {
+    await fetch("https://script.google.com/macros/s/AKfycbzCLe92s3dcujl5xA6v9S2vx2TTwEK6eXQxFlL1iH8IrPxz7qxKitQ1geL_TEynUSa0fw/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `index=${index}&status=${status}`
+    });
+    document.getElementById("popup").classList.remove("active");
+    fetchWithdrawData();
+}
+
+fetchWithdrawData();
+</script>
