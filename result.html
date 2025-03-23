@@ -22,7 +22,7 @@
 
 <script>
   function fetchGameIds() {
-    fetch("https://script.google.com/macros/s/AKfycbz1GFXxA_dXZJ6DWNIA3SOmgKJP0e4FErks9NYGU00MIAvvzV1wgXBS_3aB87gDEpk_mg/exec")
+    fetch("https://script.google.com/macros/s/AKfycbwZ0G4z04WX6LOa3TttF2h4McCInwu5SCb0evbXgyZkPdm_9ZUfaIh7Lbfqv5HhJQSvPA/exec")
       .then(response => response.json())
       .then(data => {
         const gameIdSelect = document.getElementById("gameId");
@@ -41,7 +41,7 @@
     const selection = document.getElementById("selection").value;
     const loader = document.getElementById("loader");
     loader.style.display = "flex";
-    fetch("https://script.google.com/macros/s/AKfycbz1GFXxA_dXZJ6DWNIA3SOmgKJP0e4FErks9NYGU00MIAvvzV1wgXBS_3aB87gDEpk_mg/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbwZ0G4z04WX6LOa3TttF2h4McCInwu5SCb0evbXgyZkPdm_9ZUfaIh7Lbfqv5HhJQSvPA/exec", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `gameId=${gameId}&selection=${selection}`
@@ -50,7 +50,7 @@
       .then(data => {
         loader.style.display = "none";
         alert(data);
-        fetchGameIds();
+        location.reload();
       })
       .catch(error => {
         loader.style.display = "none";
