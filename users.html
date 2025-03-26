@@ -22,7 +22,7 @@
     const loader = document.getElementById("loader");
     loader.style.display = "flex";
 
-    fetch("https://script.google.com/macros/s/AKfycby8O-Cxj8v2YPr-N9dUJNU-c6g3Q4PYm6CFeL0YoEI9unYU7YGH8Bm0Lb_VY35BtIftUw/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbwFQfvdT7XR0a9NPVL9pspDQ3rFSlxx65tvWpxEftJnmVmdcRxPFmHryK98Hj-T0CU2GQ/exec", {
         method: "POST",
         body: JSON.stringify({ action: "fetchUserData" })
     })
@@ -44,6 +44,7 @@
                             <th>Country Code</th>
                             <th>Mobile Number</th>
                             <th>Password</th>
+                            <th>Coins</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -58,6 +59,7 @@
                         <td>${user.countryCode}</td>
                         <td>${user.mobileNumber}</td>
                         <td>${user.password}</td>
+                        <td>${user.coins}</td>
                         <td>
                             <select onchange="updateStatus('${user.username}', this.value)" class="int">
                                 <option value="Active" ${user.status === "Active" ? "selected" : ""}>Active</option>
@@ -82,7 +84,7 @@
         const loader = document.getElementById("loader");
         loader.style.display = "flex";
 
-        fetch("https://script.google.com/macros/s/AKfycby8O-Cxj8v2YPr-N9dUJNU-c6g3Q4PYm6CFeL0YoEI9unYU7YGH8Bm0Lb_VY35BtIftUw/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbwFQfvdT7XR0a9NPVL9pspDQ3rFSlxx65tvWpxEftJnmVmdcRxPFmHryK98Hj-T0CU2GQ/exec", {
             method: "POST",
             body: JSON.stringify({ action: "updateStatus", username, status })
         })
